@@ -37,3 +37,13 @@ log_file.close()
 
 print "There are {0} unique Apple devices that have " \
       "connected to Wireless in the last month.".format(len(mac_addresses))
+
+with open("mac_output.csv", "wb") as out_file:
+    csv_writer = csv.writer(out_file)
+    for e in mac_addresses:
+        csv_writer.writerow([e])
+
+
+print "mac_addresses written to csv file: {0}".format(out_file.name)
+
+out_file.close()

@@ -33,5 +33,6 @@
 *.ipr
 *.iws
 
-# Ignore our log files we are storing in the project folder
+# Ignore our log files and csv we are storing in the project folder
 *.log
+*.csv
