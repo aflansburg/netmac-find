@@ -2,8 +2,8 @@ __author__ = 'misaflansb'
 
 # Will use tailored .csv for this one
 
-import csv
-import mmap
+import csv, mmap
+import re
 
 # read MAC addresses from .csv file into iterable list
 
@@ -16,12 +16,24 @@ with open('MAC.CSV', 'rb') as mac_csv:
             i = '-'.join(i[e:e+2] for e in range(0,6,2))
             maclist.append(i)
 
-confirmed_mac = []
+mac_csv.close()
 
-read_file = open('WING.log')
-s = mmap.mmap(read_file.fileno(), 0, access=mmap.ACCESS_READ)
+# find and store MAC segments in a list from file using mmap (memory mapped file)
 
-for mac_segment in maclist:
-    if s.find(mac_segment) != -1:
-            print "This macsegment, {0}, was found".format(mac_segment)
-            confirmed_mac.append(mac_segment)
+mac_addresses = []
+
+with open('WING.log', "r+b") as log_file:
+    s = mmap.mmap(log_file.fileno(), 0, prot=mmap.PROT_READ)
+    for line in iter(s.readline, ""):
+        for mac in maclist:
+            if mac in line:
+                regex = r'(' + re.escape(mac) + r'.{9})'
+                g = re.search(regex, line, re.IGNORECASE)
+                if g.group(1) not in mac_addresses:
+                    mac_addresses.append(g.group(1))
+                    print "Adding {0} to mac_addresses list.".format(g.group(0))
+
+log_file.close()
+
+print "There are {0} unique Apple devices that have " \
+      "connected to Wireless in the last month.".format(len(mac_addresses))
